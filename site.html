@@ -1,1 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тренажёр: Математическое моделирование</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
 
+        body {
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Noto Sans', sans-serif;
+            background: linear-gradient(145deg, #1a2a3a 0%, #0f1a24 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(2px);
+            border-radius: 48px;
+            padding: 20px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            text-align: center;
+            color: #f0f3f8;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+            font-weight: 600;
+        }
+        .sub {
+            text-align: center;
+            color: #bdd4e8;
+            font-size: 0.85rem;
+            margin-bottom: 1.8rem;
+            border-bottom: 1px dashed #3e5a6b;
+            padding-bottom: 10px;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 380px;
+            perspective: 1200px;
+            cursor: pointer;
+            margin-bottom: 25px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            border-radius: 32px;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateX(180deg);
+        }
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 32px;
+            padding: 28px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.4);
+        }
+
+        .front {
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+            border: 1px solid rgba(66, 153, 225, 0.3);
+        }
+        .front h2 {
+            font-size: 2rem;
+            color: #0a2b3e;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        .front .hint {
+            font-size: 0.9rem;
+            color: #2c6e9e;
+            background: #e9f0f9;
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 40px;
+            margin-top: 20px;
+        }
+
+        .back {
+            background: linear-gradient(145deg, #1f3a48 0%, #0f2a36 100%);
+            color: #f0f6fa;
+            transform: rotateX(180deg);
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+        .back h3 {
+            font-size: 1.5rem;
+            border-left: 5px solid #ffb347;
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #ffe3b3;
+        }
+        .definition {
+            font-size: 1.05rem;
+            line-height: 1.45;
+            margin-bottom: 25px;
+            text-align: left;
+            background: rgba(255,255,255,0.08);
+            padding: 12px;
+            border-radius: 20px;
+        }
+        .example {
+            background: #0d2c32b3;
+            padding: 12px;
+            border-radius: 20px;
+            text-align: left;
+            border-left: 3px solid #ffaa44;
+        }
+        .example strong {
+            color: #ffcd7e;
+        }
+
+        /* панель управления */
+        .controls {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        button {
+            background: #2c4c6e;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            font-family: inherit;
+        }
+        button:hover {
+            background: #3e6a94;
+            transform: scale(0.97);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        .progress {
+            background: #07161f99;
+            backdrop-filter: blur(4px);
+            text-align: center;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 60px;
+            font-weight: 500;
+            color: #e2f0ff;
+            font-size: 1rem;
+        }
+        .card-counter {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #ffd966;
+        }
+
+        @media (max-width: 550px) {
+            .flip-card { height: 460px; }
+            .front h2 { font-size: 1.4rem; }
+            .back h3 { font-size: 1.2rem; }
+            button { padding: 8px 16px; font-size: 0.85rem; }
+            .definition { font-size: 0.9rem; }
+        }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 20px;
+            color: #8aaec0;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <h1>📐 Математическое моделирование</h1>
+    <div class="sub">Требования, свойства, примеры</div>
+
+    <div class="flip-card" id="flipCard">
+        <div class="flip-card-inner">
+            <div class="front">
+                <h2 id="termText">Загрузка...</h2>
+                <div class="hint">👆 нажми, чтобы перевернуть</div>
+            </div>
+            <div class="back">
+                <h3>📖 Определение</h3>
+                <div class="definition" id="defText"></div>
+                <div class="example"><strong>📌 Пример:</strong> <span id="exampleText"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="nextBtn">➡ Следующая карточка</button>
+        <button id="shuffleBtn">🔄 Перемешать</button>
+    </div>
+    <div class="progress">
+        📊 Выучено (просмотрено): <span id="learnedCount">0</span> / <span id="totalCount">0</span>
+    </div>
+    <footer>Клик по карточке — переворот. Каждый перевёрнутый термин засчитывается в прогресс.</footer>
+</div>
+
+<script>
+    const termsData = [
+        { term: "Адекватность модели", definition: "Степень соответствия модели реальному объекту или процессу для решаемой задачи.", example: "Модель движения планет — адекватна для предсказания затмений, но не для описания квантовых эффектов." },
+        { term: "Устойчивость модели", definition: "Свойство модели незначительно изменять выходные параметры при малых возмущениях входных данных.", example: "Численное решение дифференциального уравнения погоды: при малой ошибке в начальных данных результат не улетает в бесконечность." },
+        { term: "Экономичность модели", definition: "Модель должна требовать приемлемых вычислительных затрат (время, память).", example: "Имитационная модель цеха вместо полного расчёта каждого атома — экономит ресурсы." },
+        { term: "Сходимость (численная)", definition: "Приближение решения модели к точному решению при измельчении шага сетки.", example: "Метод конечных разностей для теплопроводности: с уменьшением шага погрешность падает." },
+        { term: "Наблюдаемость", definition: "Возможность восстановить состояние модели по её выходным сигналам.", example: "В модели ракеты по показаниям акселерометров можно определить её положение." },
+        { term: "Управляемость", definition: "Возможность перевести модель из любого состояния в любое за конечное время с помощью управления.", example: "Автопилот может перевести самолёт из любого крена в горизонтальный полёт." },
+        { term: "Робастность", definition: "Способность модели сохранять приемлемое качество при изменении параметров или внешних условий.", example: "Робастный регулятор в химическом реакторе работает даже при колебаниях температуры сырья." },
+        { term: "Инвариантность", definition: "Независимость результатов модели от несущественных изменений входных данных.", example: "Модель расчёта НДС не зависит от цвета товара." },
+        { term: "Адекватность по диапазону", definition: "Модель верна только в определённом интервале изменения переменных.", example: "Модель идеального газа применима при низких давлениях, но не при сжатии в жидкость." },
+        { term: "Верифицируемость", definition: "Возможность проверить правильность работы модели (тестами, сравнением с экспериментом).", example: "Модель прочности моста проверяется расчётом на тестовой нагрузке." },
+        { term: "Интерпретируемость", definition: "Результаты модели должны быть понятны лицу, принимающему решение.", example: "Модель прогноза продаж выдаёт не тензор ранга 3, а графики с трендами." },
+        { term: "Модульность", definition: "Возможность собирать сложную модель из более простых блоков.", example: "Модель города строится из моделей транспорта, энергосетей и населения." }
+    ];
+
+    let currentIndex = 0;
+    let shuffledIndices = [];
+    let studiedStatus = new Array(termsData.length).fill(false);
+    let isFlipped = false;
+  
+    const flipCardDiv = document.getElementById('flipCard');
+    const termSpan = document.getElementById('termText');
+    const defSpan = document.getElementById('defText');
+    const exampleSpan = document.getElementById('exampleText');
+    const learnedSpan = document.getElementById('learnedCount');
+    const totalSpan = document.getElementById('totalCount');
+    const nextBtn = document.getElementById('nextBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+
+    function renderCurrentCard() {
+        if (!termsData.length || shuffledIndices.length === 0) return;
+        const termObj = termsData[shuffledIndices[currentIndex]];
+        termSpan.innerText = termObj.term;
+        defSpan.innerText = termObj.definition;
+        exampleSpan.innerText = termObj.example;
+      
+        if (isFlipped) {
+            flipCardDiv.classList.remove('flipped');
+            isFlipped = false;
+        }
+    }
+
+    function updateProgressCounter() {
+        const learnedTotal = studiedStatus.filter(v => v === true).length;
+        learnedSpan.innerText = learnedTotal;
+        totalSpan.innerText = termsData.length;
+    }
+
+    function markCurrentAsLearned() {
+        const currentRealIndex = shuffledIndices[currentIndex];
+        if (!studiedStatus[currentRealIndex]) {
+            studiedStatus[currentRealIndex] = true;
+            updateProgressCounter();
+        }
+    }
+
+    function shuffleDeck() {
+        let indices = Array.from({length: termsData.length}, (_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        shuffledIndices = indices;
+        currentIndex = 0;
+        renderCurrentCard();
+        if (isFlipped) {
+            flipCardDiv.classList.remove('flipped');
+            isFlipped = false;
+        }
+    }
+
+    function nextCard() {
+        if (shuffledIndices.length === 0) return;
+        currentIndex = (currentIndex + 1) % shuffledIndices.length;
+        renderCurrentCard();
+    }
+
+    function onFlipCard() {
+        if (!flipCardDiv.classList.contains('flipped')) {
+            markCurrentAsLearned();
+            flipCardDiv.classList.add('flipped');
+            isFlipped = true;
+        } else {
+            flipCardDiv.classList.remove('flipped');
+            isFlipped = false;
+        }
+    }
+
+    function initApp() {
+        totalSpan.innerText = termsData.length;
+        shuffleDeck();
+        updateProgressCounter();
+        
+        flipCardDiv.addEventListener('click', onFlipCard);
+        nextBtn.addEventListener('click', () => {
+            nextCard();
+        });
+        shuffleBtn.addEventListener('click', () => {
+            shuffleDeck();
+        });
+    }
+    
+    initApp();
+</script>
+</body>
+</html>
